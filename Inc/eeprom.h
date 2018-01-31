@@ -24,8 +24,8 @@
 #define __EEPROM_H
 
 /* Includes ------------------------------------------------------------------*/
-#include "stm32f10x.h"
-
+//#include "stm32f10x.h"
+#include "stm32f1xx_hal.h"
 /* Exported constants --------------------------------------------------------*/
 /* Define the STM32F10Xxx Flash page size depending on the used STM32 device */
 #if defined (STM32F10X_LD) || defined (STM32F10X_MD)
