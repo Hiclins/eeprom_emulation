@@ -71,20 +71,28 @@ uint16_t EE_Init(void)
       {
         /* Erase Page0 */
         FLASH_PageErase(PAGE0_BASE_ADDRESS);
+				/* Wait for last operation to be completed */
+        FlashStatus = FLASH_WaitForLastOperation((uint32_t)FLASH_TIMEOUT_VALUE);  
+        /* If the erase operation is completed, disable the PER Bit */
+        CLEAR_BIT(FLASH->CR, FLASH_CR_PER);
         /* If erase operation was failed, a Flash error code is returned */
-        if (HAL_FLASH_GetError() != HAL_FLASH_ERROR_NONE)
+        if (FlashStatus != HAL_OK)
         {
-          return HAL_FLASH_GetError();
+          return FlashStatus;
         }
       }
       else if (PageStatus1 == RECEIVE_DATA) /* Page0 erased, Page1 receive */
       {
         /* Erase Page0 */
         FLASH_PageErase(PAGE0_BASE_ADDRESS);
+        /* Wait for last operation to be completed */
+        FlashStatus = FLASH_WaitForLastOperation((uint32_t)FLASH_TIMEOUT_VALUE);  
+        /* If the erase operation is completed, disable the PER Bit */
+        CLEAR_BIT(FLASH->CR, FLASH_CR_PER);
         /* If erase operation was failed, a Flash error code is returned */
-        if (HAL_FLASH_GetError() != HAL_FLASH_ERROR_NONE)
+        if (FlashStatus != HAL_OK)
         {
-          return HAL_FLASH_GetError();
+          return FlashStatus;
         }
         /* Mark Page1 as valid */
 				FlashStatus = HAL_FLASH_Program(FLASH_TYPEPROGRAM_HALFWORD, PAGE1_BASE_ADDRESS, VALID_PAGE);
@@ -143,20 +151,28 @@ uint16_t EE_Init(void)
         }
         /* Erase Page1 */
         FLASH_PageErase(PAGE1_BASE_ADDRESS);
+				/* Wait for last operation to be completed */
+        FlashStatus = FLASH_WaitForLastOperation((uint32_t)FLASH_TIMEOUT_VALUE);  
+        /* If the erase operation is completed, disable the PER Bit */
+        CLEAR_BIT(FLASH->CR, FLASH_CR_PER);
         /* If erase operation was failed, a Flash error code is returned */
-        if (HAL_FLASH_GetError() != HAL_FLASH_ERROR_NONE)
+        if (FlashStatus != HAL_OK)
         {
-          return HAL_FLASH_GetError();
+          return FlashStatus;
         }
       }
       else if (PageStatus1 == ERASED) /* Page0 receive, Page1 erased */
       {
         /* Erase Page1 */
         FLASH_PageErase(PAGE1_BASE_ADDRESS);
+				/* Wait for last operation to be completed */
+        FlashStatus = FLASH_WaitForLastOperation((uint32_t)FLASH_TIMEOUT_VALUE);  
+        /* If the erase operation is completed, disable the PER Bit */
+        CLEAR_BIT(FLASH->CR, FLASH_CR_PER);
         /* If erase operation was failed, a Flash error code is returned */
-        if (HAL_FLASH_GetError() != HAL_FLASH_ERROR_NONE)
+        if (FlashStatus != HAL_OK)
         {
-          return HAL_FLASH_GetError();
+          return FlashStatus;
         }
         /* Mark Page0 as valid */
 				FlashStatus = HAL_FLASH_Program(FLASH_TYPEPROGRAM_HALFWORD, PAGE0_BASE_ADDRESS, VALID_PAGE);
@@ -193,10 +209,14 @@ uint16_t EE_Init(void)
       {
         /* Erase Page1 */
         FLASH_PageErase(PAGE1_BASE_ADDRESS);
+				/* Wait for last operation to be completed */
+        FlashStatus = FLASH_WaitForLastOperation((uint32_t)FLASH_TIMEOUT_VALUE);  
+        /* If the erase operation is completed, disable the PER Bit */
+        CLEAR_BIT(FLASH->CR, FLASH_CR_PER);
         /* If erase operation was failed, a Flash error code is returned */
-        if (HAL_FLASH_GetError() != HAL_FLASH_ERROR_NONE)
+        if (FlashStatus != HAL_OK)
         {
-          return HAL_FLASH_GetError();
+          return FlashStatus;
         }
       }
       else /* Page0 valid, Page1 receive */
@@ -234,10 +254,14 @@ uint16_t EE_Init(void)
         }
         /* Erase Page0 */
         FLASH_PageErase(PAGE0_BASE_ADDRESS);
+				/* Wait for last operation to be completed */
+        FlashStatus = FLASH_WaitForLastOperation((uint32_t)FLASH_TIMEOUT_VALUE);  
+        /* If the erase operation is completed, disable the PER Bit */
+        CLEAR_BIT(FLASH->CR, FLASH_CR_PER);
         /* If erase operation was failed, a Flash error code is returned */
-        if (HAL_FLASH_GetError() != HAL_FLASH_ERROR_NONE)
+        if (FlashStatus != HAL_OK)
         {
-          return HAL_FLASH_GetError();
+          return FlashStatus;
         }
       }
       break;
@@ -355,12 +379,15 @@ static HAL_StatusTypeDef EE_Format(void)
 
   /* Erase Page0 */
   FLASH_PageErase(PAGE0_BASE_ADDRESS);
-
-  /* If erase operation was failed, a Flash error code is returned */
-  if (HAL_FLASH_GetError() != HAL_FLASH_ERROR_NONE)
-  {
-		return HAL_FLASH_GetError();
-  }
+	/* Wait for last operation to be completed */
+	FlashStatus = FLASH_WaitForLastOperation((uint32_t)FLASH_TIMEOUT_VALUE);  
+	/* If the erase operation is completed, disable the PER Bit */
+	CLEAR_BIT(FLASH->CR, FLASH_CR_PER);
+	/* If erase operation was failed, a Flash error code is returned */
+	if (FlashStatus != HAL_OK)
+	{
+		return FlashStatus;
+	}
 
   /* Set Page0 as valid page: Write VALID_PAGE at Page0 base address */
   FlashStatus = HAL_FLASH_Program(FLASH_TYPEPROGRAM_HALFWORD, PAGE0_BASE_ADDRESS, VALID_PAGE);
@@ -372,9 +399,13 @@ static HAL_StatusTypeDef EE_Format(void)
 
   /* Erase Page1 */
   FLASH_PageErase(PAGE1_BASE_ADDRESS);
+	/* Wait for last operation to be completed */
+	FlashStatus = FLASH_WaitForLastOperation((uint32_t)FLASH_TIMEOUT_VALUE);  
+	/* If the erase operation is completed, disable the PER Bit */
+	CLEAR_BIT(FLASH->CR, FLASH_CR_PER);
+	/* If erase operation was failed, a Flash error code is returned */
 
-  /* Return Page1 erase operation status */
-  return HAL_FLASH_GetError();
+  return FlashStatus;
 }
 
 /**
@@ -590,11 +621,15 @@ static uint16_t EE_PageTransfer(uint16_t VirtAddress, uint16_t Data)
 
   /* Erase the old Page: Set old Page status to ERASED status */
   FLASH_PageErase(OldPageAddress);
-  /* If erase operation was failed, a Flash error code is returned */
-  if (HAL_FLASH_GetError() != HAL_FLASH_ERROR_NONE)
-  {
-		return HAL_FLASH_GetError();
-  }
+	/* Wait for last operation to be completed */
+	FlashStatus = FLASH_WaitForLastOperation((uint32_t)FLASH_TIMEOUT_VALUE);  
+	/* If the erase operation is completed, disable the PER Bit */
+	CLEAR_BIT(FLASH->CR, FLASH_CR_PER);
+	/* If erase operation was failed, a Flash error code is returned */
+	if (FlashStatus != HAL_OK)
+	{
+		return FlashStatus;
+	}
 
   /* Set new Page status to VALID_PAGE status */
   FlashStatus = HAL_FLASH_Program(FLASH_TYPEPROGRAM_HALFWORD, NewPageAddress, VALID_PAGE);
